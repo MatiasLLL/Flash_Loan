@@ -13,3 +13,12 @@ node_modules
 # solidity-coverage files
 /coverage
 /coverage.json
+
+/v0-SepoliaTestet
+
+/ignition
+
+/arbitrage-scripts/pairesV2
+/arbitrage-scripts/debug-paires
+
+/scripts-bis

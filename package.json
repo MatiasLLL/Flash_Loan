@@ -6,6 +6,10 @@
   },
   "dependencies": {
     "@aave/core-v3": "^1.19.3",
-    "dotenv": "^16.4.5"
+    "@openzeppelin/contracts": "^5.0.2",
+    "@uniswap/v2-periphery": "^1.1.0-beta.0",
+    "dotenv": "^16.4.5",
+    "node-fetch": "^3.3.2",
+    "ws": "^8.16.0"
   }
 }
