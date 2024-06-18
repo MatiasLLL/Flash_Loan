@@ -18,7 +18,9 @@ node_modules
 
 /ignition
 
-/arbitrage-scripts/pairesV2
 /arbitrage-scripts/debug-paires
+/arbitrage-scripts/old-paires
+/arbitrage-scripts/pairesV2
+/arbitrage-scripts/pairesV3
 
 /scripts-bis

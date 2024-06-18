@@ -10,7 +10,8 @@ export const flashLoanArbitrageAddress = '0x749bE2E6956f82760D21dB93a2371408Ab75
 export const arbitrageContractWithSigner = FlashLoan__factory.connect(flashLoanArbitrageAddress, signer);
 
 export const quickSwapAddress = '0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff';
-export const sushiSwapAddress = '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506';
+export const sushiSwapAddress = '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506'; 
+// export const uniSwapAddress = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D';
 
 export const usdcAddress = '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174';
 export const usdtAddress = '0xc2132D05D31c914a87C6611C10748AEb04B58e8F';
@@ -41,10 +42,70 @@ export const getAmountsOutAbi = [{
     "type": "function"
 }];
 
+export const getAmountsInAbi = [{
+  "constant": true,
+  "inputs": [
+      {
+          "name": "amountIn",
+          "type": "uint256"
+      },
+      {
+          "name": "path",
+          "type": "address[]"
+      }
+  ],
+  "name": "getAmountsIn",
+  "outputs": [
+      {
+          "name": "amounts",
+          "type": "uint256[]"
+      }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+}];
+
+
 export const quickSwapContractWithGetAmountsOut = new ethers.Contract(quickSwapAddress, getAmountsOutAbi, provider);
 export const sushiSwapContractWithGetAmountsOut = new ethers.Contract(sushiSwapAddress, getAmountsOutAbi, provider);
 
-export async function exchangeAtIndex(index: any) {
+export const quickSwapContractWithGetAmountsIn = new ethers.Contract(quickSwapAddress, getAmountsInAbi, provider);
+export const sushiSwapContractWithGetAmountsIn = new ethers.Contract(sushiSwapAddress, getAmountsInAbi, provider);
+
+export async function getPrices() {
+  const QuickSwap_wbtcTOdai = await quickSwapContractWithGetAmountsOut.getAmountsOut(ethers.parseUnits('1', 8), [wbtcAddress, daiAddress]);
+  const QuickSwap_daiTOwbtc = await quickSwapContractWithGetAmountsIn.getAmountsIn(ethers.parseUnits('1', 18), [daiAddress, wbtcAddress]);
+  const SushiSwap_wbtcTOdai = await sushiSwapContractWithGetAmountsOut.getAmountsOut(ethers.parseUnits('1', 8), [wbtcAddress, daiAddress]);
+  const SushiSwap_daiTOwbtc = await sushiSwapContractWithGetAmountsIn.getAmountsIn(ethers.parseUnits('1', 18), [daiAddress, wbtcAddress]);
+
+  // Price QuickSwap
+  const priceQuickSwap_wbtcTOdai = BigInt(QuickSwap_wbtcTOdai[1]);
+  const priceQuickSwap_daiTOwbtc = BigInt(QuickSwap_daiTOwbtc[0]);
+  // Price SushiSwap
+  const priceSushiSwap_wbtcTOdai = BigInt(SushiSwap_wbtcTOdai[1]);
+  const priceSushiSwap_daiTOwbtc = BigInt(SushiSwap_daiTOwbtc[0]);
+
+  return {
+      priceQuickSwap_wbtcTOdai,
+      priceQuickSwap_daiTOwbtc,
+      priceSushiSwap_wbtcTOdai,
+      priceSushiSwap_daiTOwbtc
+  };
+}
+
+// const QuickSwap_wbtcTOdai = quickSwapContractWithGetAmountsOut.getAmountsOut(1, [wbtcAddress, daiAddress]);
+// const QuickSwap_daiTOwbtc = quickSwapContractWithGetAmountsIn.getAmountsIn(1, [daiAddress, wbtcAddress]);
+// const SushiSwap_wbtcTOdai = sushiSwapContractWithGetAmountsOut.getAmountsOut(1, [wbtcAddress, daiAddress]);
+// const SushiSwap_daiTOwbtc = sushiSwapContractWithGetAmountsIn.getAmountsIn(1, [daiAddress, wbtcAddress]);
+
+// // Price QuickSwap
+// export const priceQuickSwap_wbtcTOdai = BigInt(QuickSwap_wbtcTOdai[1]) / BigInt(1e10);
+// export const priceQuickSwap_daiTOwbtc = BigInt(QuickSwap_daiTOwbtc[0]) / BigInt(1e10);
+// // Price SushiSwap
+// export const priceSushiSwap_wbtcTOdai = BigInt(SushiSwap_wbtcTOdai[1]) / BigInt(1e10);
+// export const priceSushiSwap_daiTOwbtc = BigInt(SushiSwap_daiTOwbtc[0]) / BigInt(1e10);
+
+export async function exchangeAtIndex(index: number) {
     return index < 2 ? 'QuickSwap' : 'SushiSwap';
 };
 
@@ -138,3 +199,14 @@ async function displayTokenAllowances() {
 //     console.error("Failed to set allowance:", error);
 //   }
 // }
+
+
+
+// "name": "getAmountsIn",
+//           "outputs": [
+//             {
+//               "internalType": "uint256[]",
+//               "name": "amounts",
+//               "type": "uint256[]"
+//             }
+//           ],

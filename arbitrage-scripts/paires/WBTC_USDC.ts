@@ -1,33 +1,33 @@
 import { ethers, ContractTransactionReceipt } from 'ethers';
-import { arbitrageContractWithSigner, getPrices,quickSwapContractWithGetAmountsIn, sushiSwapContractWithGetAmountsIn, quickSwapContractWithGetAmountsOut, sushiSwapContractWithGetAmountsOut,  quickSwapAddress, sushiSwapAddress, wbtcAddress, daiAddress } from '../utils';
+import { arbitrageContractWithSigner, getPrices,quickSwapContractWithGetAmountsIn, sushiSwapContractWithGetAmountsIn, quickSwapContractWithGetAmountsOut, sushiSwapContractWithGetAmountsOut, quickSwapAddress, sushiSwapAddress, wbtcAddress, usdcAddress } from '../utils';
 
-export async function PairWBTCDAI() {
+export async function PairWBTCUSDC() {
   try {
-    const QuickSwap_wbtcTOdai = await quickSwapContractWithGetAmountsOut.getAmountsOut(1, [wbtcAddress, daiAddress]);
-    const QuickSwap_daiTOwbtc = await quickSwapContractWithGetAmountsIn.getAmountsIn(1, [daiAddress, wbtcAddress]);
-    const SushiSwap_wbtcTOdai = await sushiSwapContractWithGetAmountsOut.getAmountsOut(1, [wbtcAddress, daiAddress]);
-    const SushiSwap_daiTOwbtc = await sushiSwapContractWithGetAmountsIn.getAmountsIn(1, [daiAddress, wbtcAddress]);
+    const QuickSwap_wbtcTOusdc = await quickSwapContractWithGetAmountsOut.getAmountsOut(100, [wbtcAddress, usdcAddress]);
+    const QuickSwap_usdcTOwbtc = await quickSwapContractWithGetAmountsIn.getAmountsIn(100, [usdcAddress, wbtcAddress]);
+    const SushiSwap_wbtcTOusdc = await sushiSwapContractWithGetAmountsOut.getAmountsOut(100, [wbtcAddress, usdcAddress]);
+    const SushiSwap_usdcTOwbtc = await sushiSwapContractWithGetAmountsIn.getAmountsIn(100, [usdcAddress, wbtcAddress]);
     // Price QuickSwap & SushiSwap
-    const priceQuickSwap_wbtcTOdai = BigInt(QuickSwap_wbtcTOdai[1]) / BigInt(1e10);
-    const priceQuickSwap_daiTOwbtc = BigInt(QuickSwap_daiTOwbtc[0]) / BigInt(1e10);
-    const priceSushiSwap_wbtcTOdai = BigInt(SushiSwap_wbtcTOdai[1]) / BigInt(1e10);
-    const priceSushiSwap_daiTOwbtc = BigInt(SushiSwap_daiTOwbtc[0]) / BigInt(1e10);
+    const priceQuickSwap_wbtcTOusdc = BigInt(QuickSwap_wbtcTOusdc[1]);
+    const priceQuickSwap_usdcTOwbtc = BigInt(QuickSwap_usdcTOwbtc[0]);
+    const priceSushiSwap_wbtcTOusdc = BigInt(SushiSwap_wbtcTOusdc[1]);
+    const priceSushiSwap_usdcTOwbtc = BigInt(SushiSwap_usdcTOwbtc[0]);
     // Print prices
-    console.log(`price QuickSwap_wbtcTOdai: ${priceQuickSwap_wbtcTOdai}`);
-    console.log(`price QuickSwap_daiTOwbtc: ${priceQuickSwap_daiTOwbtc}`);
-    console.log(`price SushiSwap_wbtcTOdai: ${priceSushiSwap_wbtcTOdai}`);
-    console.log(`price SushiSwap_daiTOwbtc: ${priceSushiSwap_daiTOwbtc}`);
+    console.log(`price QuickSwap WBTC to USDC: ${priceQuickSwap_wbtcTOusdc}`);
+    console.log(`price QuickSwap USDC to WBTC: ${priceQuickSwap_usdcTOwbtc}`);
+    console.log(`price SushiSwap WBTC to USDC: ${priceSushiSwap_wbtcTOusdc}`);
+    console.log(`price SushiSwap USDC to WBTC: ${priceSushiSwap_usdcTOwbtc}`);
 
-    const arrayPrice1: bigint[] = [ priceQuickSwap_wbtcTOdai, priceSushiSwap_wbtcTOdai ];
-    const arrayPrice2: bigint[] = [ priceQuickSwap_daiTOwbtc, priceSushiSwap_daiTOwbtc ];
+    const arrayPrice1: bigint[] = [ priceQuickSwap_wbtcTOusdc, priceSushiSwap_wbtcTOusdc ];
+    const arrayPrice2: bigint[] = [ priceQuickSwap_usdcTOwbtc, priceSushiSwap_usdcTOwbtc ];
     
     const normalizedPricesFirstSwap = arrayPrice1.map(amounts => parseFloat(ethers.formatUnits(amounts, 0)));
     const highestPrice = Math.max(...normalizedPricesFirstSwap);
     const normalizedPricesSecondSwap = arrayPrice2.map(amounts => parseFloat(ethers.formatUnits(amounts, 0)));
     const lowestPrice = Math.min(...normalizedPricesSecondSwap);
 
-    console.log(`First Swap ==> swap 1 WBTC to ${highestPrice} DAI`);
-    console.log(`Second Swap ==> swap the ${highestPrice} DAI to BTC at the price of ${lowestPrice} DAI`);
+    console.log(`First Swap ==> swap 1 WBTC to ${highestPrice} USDC`);
+    console.log(`Second Swap ==> swap the ${highestPrice} USDC to WBTC at the price of ${lowestPrice} USDC`);
 
     const calculateProfitMargin = (highestPrice: number, lowestPrice: number): number => {
       const profitMargin = (highestPrice / lowestPrice - 1) * 100;
@@ -38,17 +38,17 @@ export async function PairWBTCDAI() {
     console.log(`Profit Margin: ${profitMargin}%`);
 
     // Proceed with the arbitrage
-    const firstSwapPath = [wbtcAddress, daiAddress];
-    const secondSwapPath = [daiAddress, wbtcAddress];
-    const firstDexRouter = Number(ethers.formatUnits(priceQuickSwap_wbtcTOdai, 0)) === highestPrice ? quickSwapAddress : sushiSwapAddress;
-    const secondDexRouter = Number(ethers.formatUnits(priceQuickSwap_daiTOwbtc, 0)) === lowestPrice ? quickSwapAddress : sushiSwapAddress;
+    const firstSwapPath = [wbtcAddress, usdcAddress];
+    const secondSwapPath = [usdcAddress, wbtcAddress];
+    const firstDexRouter = Number(ethers.formatUnits(priceQuickSwap_wbtcTOusdc, 0)) === highestPrice ? quickSwapAddress : sushiSwapAddress;
+    const secondDexRouter = Number(ethers.formatUnits(priceQuickSwap_usdcTOwbtc, 0)) === lowestPrice ? quickSwapAddress : sushiSwapAddress;
 
     const params = ethers.AbiCoder.defaultAbiCoder().encode(
       ["address[]", "address[]", "address", "address"],
       [firstSwapPath, secondSwapPath, firstDexRouter, secondDexRouter]
     );
 
-    const amountToBorrow = ethers.parseUnits('1', 8); // Adjust this amount based on your strategy
+    const amountToBorrow = ethers.parseUnits('1', 8);
     console.log(`Amount to borrow: ${amountToBorrow}`);
     
     if (profitMargin > 0.75) {
@@ -87,4 +87,4 @@ export async function PairWBTCDAI() {
   }
 }
 
-// PairWBTCDAI();
+// PairWBTCUSDC();

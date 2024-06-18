@@ -123,7 +123,7 @@ contract FlashLoan is FlashLoanSimpleReceiverBase {
             "Not enough funds to repay Aave loan"
         );
         require(
-            (secondReceived * 10000) / totalRepayment >= 10035, // Adjusted for 0.85% profit threshold
+            (secondReceived * 10000) / totalRepayment >= 10075, // Adjusted for 0.75% profit threshold
             "Insufficient profit"
         );
 
